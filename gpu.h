@@ -8,7 +8,6 @@
 #include "xlog.h"
 #include <fstream>
 
-std::ofstream testOut("testOut.csv");
 
 __device__ __host__
 inline void cpyCharCustom(char* source,char* target){
@@ -85,8 +84,6 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 //			testOut<<i<<",pos,"<<netPos<<",PnL,"<<periodPnL<<",total,"<<
 //					totalPnL<<endl;
 	}
-//	cout<<"totalPnL "<<exec.resTotal.PnL<<" max draw "<<exec.resTotal.maxDrawdown<<endl;
-
 }
 
 
@@ -174,19 +171,19 @@ void aggregateResults(bt::execution& exec,bt::stockData* data,long dataSize){
 		}
 	}
 
-	//TEMP: print
-	for (int sym=0;sym<1;sym++){
-		float execPnL=0;
-		for (long i=0;i<(exec.numTrades[sym]);i++){
-			float thisPos=exec.trade[sym].posSize[i];
-			float thisPrice=data[exec.trade[sym].location[i]].d[sym];
-			execPnL+=exec.trade[sym].realPnL[i];
-			testOut<<i<<",price,"<<thisPrice<<",pos,"<<thisPos<<",PnL,"<<
-					exec.trade[sym].realPnL[i]<<",loc,"<<
-					exec.trade[sym].location[i]<<endl;
-		}
-
-	}
+//	//TEMP: print
+//	for (int sym=0;sym<1;sym++){
+//		float execPnL=0;
+//		for (long i=0;i<(exec.numTrades[sym]);i++){
+//			float thisPos=exec.trade[sym].posSize[i];
+//			float thisPrice=data[exec.trade[sym].location[i]].d[sym];
+//			execPnL+=exec.trade[sym].realPnL[i];
+//			testOut<<i<<",price,"<<thisPrice<<",pos,"<<thisPos<<",PnL,"<<
+//					exec.trade[sym].realPnL[i]<<",loc,"<<
+//					exec.trade[sym].location[i]<<endl;
+//		}
+//
+//	}
 }
 
 struct individual_run
@@ -202,8 +199,6 @@ struct individual_run
     	//to be run every iteration of the backtest
     	bt::execution execTemp;
     	initExec(execTemp);
-    	cout<<"in run "<<Y<<endl;
-    	cout<<"FM :"<<par.lPar[bt::fastMA]<<" SM: "<<par.lPar[bt::slowMA]<<endl;
     	crossingMA(data,dataSize,0,100.0,par.lPar[bt::fastMA],par.lPar[bt::slowMA],execTemp);
     	aggregateResults(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);

@@ -5,6 +5,8 @@
 
 #include "setup.h"
 
+//std::ofstream testOut("testOut.csv");
+
 namespace bt{
 
 enum {orderSize=0,fastMA=1,slowMA=2};
