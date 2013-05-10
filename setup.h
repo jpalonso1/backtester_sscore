@@ -53,7 +53,6 @@ struct result{
 	float maxDrawdown;
 	float numTransactions;
 	float avgDailyProfit;
-	void clear();
 };
 
 struct execution{
@@ -62,7 +61,7 @@ struct execution{
 	result resTotal;
 	char symbol[DATA_ELEMENTS][20];
 	long numTrades[DATA_ELEMENTS];
-	execution();
+//	execution();
 };
 
 void setParameters(thrust::host_vector<parameters>& par);

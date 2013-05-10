@@ -91,16 +91,16 @@ void aggregateResults(bt::execution& exec,bt::stockData* data,long dataSize){
 		}
 	}
 
-	//TEMP: print
+//	//TEMP: print
 //	for (int sym=0;sym<1;sym++){
 //		float execPnL=0;
 //		for (long i=0;i<(exec.numTrades[sym]);i++){
 //			float thisPos=exec.trade[sym].posSize[i];
 //			float thisPrice=data[exec.trade[sym].location[i]].d[sym];
 //			execPnL+=exec.trade[sym].realPnL[i];
-//			testOut<<i<<",price,"<<thisPrice<<",pos,"<<thisPos<<",PnL,"<<
-//					exec.trade[sym].realPnL[i]<<",loc,"<<
-//					exec.trade[sym].location[i]<<endl;
+////			testOut<<i<<",price,"<<thisPrice<<",pos,"<<thisPos<<",PnL,"<<
+////					exec.trade[sym].realPnL[i]<<",loc,"<<
+////					exec.trade[sym].location[i]<<endl;
 //		}
 //
 //	}
@@ -118,9 +118,7 @@ struct individual_run
     bt::execution operator()(const bt::parameters& par, const long& Y) const {
     	//to be run every iteration of the backtest
     	bt::execution execTemp;
-//    	execTemp.posSize[0]=par.orderSize+2;
-//    	execTemp.location[0]=123;
-    	execTemp.numTrades[0]=0;
+    	initExec(execTemp);
     	crossingMA(data,dataSize,0,100.0,par.fastMA,par.slowMA,execTemp);
     	aggregateResults(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
@@ -148,20 +146,17 @@ int main(){
 	bt::extractRawData("AAPLclean.csv",datah,true);
 	logExtract.log("Lines: ",datah.size());
 	logExtract.end();
-	const long VEC_SIZE=10000;
-//	cout<<"Sample: "<<datah[0].date<<" + "<<datah[0].d1
-//			<<" + "<<datah[0].d2<<" + "<<datah[0].d3<<endl;
-	cout<<"Sample: "<<datah[0].	date<<" + "<<datah[0].d[0]
-			<<" + "<<datah[0].d[1]<<" + "<<datah[0].d[2]<<endl;
+	const long VEC_SIZE=1000;
+
 	//create vector of parameters to be tested
 	thrust::host_vector<bt::parameters> parh(VEC_SIZE);
 	setParameters(parh);
     parh[0].fastMA=27;
     thrust::device_vector<bt::parameters> pard=parh;
     thrust::device_vector<bt::stockData> datad=datah;
-    cout<<"data test: "<<datah[5].d[0]<<","<<datah[4].d[0]<<endl;
+    cout<<"creating execution..."<<endl;
     thrust::device_vector<bt::execution> exec(VEC_SIZE);
-
+    cout<<"end creating execution..."<<endl;
     XLog logBacktest("Run backtest");
     runBacktest(datad,pard,exec);
     logBacktest.end();
@@ -170,8 +165,8 @@ int main(){
 
     cout<<exech[0].trade[0].location[0]<<endl;
     cout<<exech[0].trade[0].posSize[0]<<endl;
-    cout<<exech[4].trade[0].location[0]<<endl;
-    cout<<exech[4].trade[0].posSize[0]<<endl;
+    cout<<"Sum PnL: "<<exech[0].resTotal.PnL<<endl;
+    cout<<"Max Draw: "<<exech[0].resTotal.maxDrawdown<<endl;
     logMain.end();
 	return 0;
 }

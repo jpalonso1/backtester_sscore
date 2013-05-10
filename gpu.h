@@ -7,9 +7,9 @@
 #include "xlog.h"
 #include <fstream>
 
-std::ofstream testOut("testOut.csv");
+//std::ofstream testOut("testOut.csv");
 
-__host__ __device__
+__device__ __host__
 inline void cpyCharCustom(char* source,char* target){
 	//custom character copy that works on gpu
 	int cnt=0;
@@ -19,7 +19,24 @@ inline void cpyCharCustom(char* source,char* target){
 	}
 }
 
-__host__ __device__
+__device__ __host__
+void initExec(bt::execution& exec){
+	exec.numTrades[0]=0;
+    for (int sym=0;sym<DATA_ELEMENTS;sym++){
+    	exec.numTrades[sym]=0;
+    }
+}
+
+__device__ __host__
+void clearResult(bt::result& res){
+	res.PnL=0;
+	res.sharpe=0;
+	res.maxDrawdown=0;
+	res.numTransactions=0;
+	res.avgDailyProfit=0;
+}
+
+__device__ __host__
 inline void crossingMA(bt::stockData* data,long dataSize,long dataEl,
 		float orderSize,long fastMA,long slowMA,bt::execution& exec){
 	//tracks last direction. fast>slow =1, fast<slow =-1
@@ -67,7 +84,7 @@ inline void crossingMA(bt::stockData* data,long dataSize,long dataEl,
 	}
 }
 
-__host__ __device__
+__device__ __host__
 inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 
 	float netPos[DATA_ELEMENTS];
@@ -75,9 +92,9 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 	long tempMaxDraw[DATA_ELEMENTS];
 	long tempMaxDrawTotal=0;
 	//initialize results
-	exec.resTotal.clear();
+	clearResult(exec.resTotal);
 	for (int sym=0;sym<DATA_ELEMENTS;sym++){
-		exec.resInd[sym].clear();
+		clearResult(exec.resInd[sym]);
 		netPos[sym]=0;
 		lastExec[sym]=0;
 		tempMaxDraw[sym]=0;

@@ -4,7 +4,7 @@ INCLUDES=-I.
 CXX = nvcc
 CXXFLAGS = $(INCLUDES)
 
-SRC=backmain.cu setup.cu
+SRC=backmain.cu setup.cu xlog.cpp
 
 EXEC=backtest
 

@@ -21,6 +21,8 @@ void extractRawData(char* filename,thrust::host_vector<bt::stockData>& data,bool
 	int c[DATA_ELEMENTS],len;
 	//ignore first line if header exists
 	if (header)getline(input,line);
+	//tracks line number
+	long lineCount=0;
 	bt::stockData tempData;
 	//loop through each line and assign to vector
 	while (!input.eof()){
@@ -58,20 +60,6 @@ void extractRawData(char* filename,thrust::host_vector<bt::stockData>& data,bool
 		}
 		data.push_back(tempData);
 	}
-}
-
-execution::execution() {
-	for (int sym=0;sym<DATA_ELEMENTS;sym++){
-		numTrades[sym]=0;
-	}
-}
-
-void result::clear() {
-	PnL=0;
-	sharpe=0;
-	maxDrawdown=0;
-	numTransactions=0;
-	avgDailyProfit=0;
 }
 
 //namespace bt
