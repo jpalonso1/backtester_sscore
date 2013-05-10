@@ -23,6 +23,8 @@ const int FLOAT_PARAMETERS=5;
 namespace bt{
 
 struct parameters{
+	//DES:holds floating (fPar) and long (lPar)
+	//parameters for EACH iteration
 	float fPar[FLOAT_PARAMETERS];
 	long lPar[LONG_PARAMETERS];
 };

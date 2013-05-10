@@ -6,6 +6,7 @@
 #include "setup.h"
 
 //std::ofstream testOut("testOut.csv");
+static char* dataFile={"AAPLclean.csv"};
 
 namespace bt{
 
@@ -61,6 +62,14 @@ inline void crossingMA(bt::stockData* data,long dataSize,long sym,
 			nextTrade=0;
 		}
 	}
+}
+
+//This function is called every iteration. DO NOT modify function name or arguments
+__device__ __host__
+inline void runExecution(bt::stockData* data,long dataSize,
+		bt::execution& exec,const bt::parameters& par){
+	//modify this line to call custom function:
+	crossingMA(data,dataSize,0,100.0,par.lPar[bt::fastMA],par.lPar[bt::slowMA],exec);
 }
 
 //namespace bt

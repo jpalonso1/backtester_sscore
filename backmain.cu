@@ -11,24 +11,23 @@ using namespace std;
 void runBacktest(thrust::device_vector<bt::stockData>& data,
 		thrust::device_vector<bt::parameters>& par, thrust::device_vector<bt::execution>& exec,
 		long vecSize){
+	//create "dummy" vector sequence. Only used to track position
 	thrust::device_vector<long> Y(vecSize);
     thrust::sequence(Y.begin(),Y.end());
     //wrap data in device pointer
     bt::stockData* dataPtr=thrust::raw_pointer_cast(&data[0]);
     //transform the vector using the specified function
-//    cout<<"running transform"<<endl;
     thrust::transform(par.begin(), par.end(), Y.begin(), exec.begin(),
 			individual_run(dataPtr,data.size()));
 
 }
-
 
 int main(){
 	cout<<"starting"<<endl;
 	XLog logMain("Main process");
 	thrust::host_vector<bt::stockData> datah;
 	XLog logExtract("Extracting data");
-	bt::extractRawData("AAPLclean.csv",datah,true);
+	bt::extractRawData(dataFile,datah,true);
 	logExtract.log("Lines: ",datah.size());
 	logExtract.end();
 

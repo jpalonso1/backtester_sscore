@@ -8,7 +8,6 @@
 #include "xlog.h"
 #include <fstream>
 
-
 __device__ __host__
 inline void cpyCharCustom(char* source,char* target){
 	//custom character copy that works on gpu
@@ -199,12 +198,12 @@ struct individual_run
     	//to be run every iteration of the backtest
     	bt::execution execTemp;
     	initExec(execTemp);
-    	crossingMA(data,dataSize,0,100.0,par.lPar[bt::fastMA],par.lPar[bt::slowMA],execTemp);
+
+    	bt::runExecution(data,dataSize,execTemp,par);
     	aggregateResults(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
     	return execTemp;
 	}
 };
-
 
 #endif /* GPU_H_ */
