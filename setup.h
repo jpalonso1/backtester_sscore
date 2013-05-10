@@ -11,22 +11,20 @@
 #include <thrust/host_vector.h>
 #include <thrust/transform.h>
 #include <thrust/sequence.h>
+#include <thrust/sort.h>
 
 using std::cout;
 using std::endl;
 
-enum basicSymbolVolume{s1=0,vol=1};
-
 const int DATA_ELEMENTS=3;
-
+const int LONG_PARAMETERS=5;
+const int FLOAT_PARAMETERS=5;
 
 namespace bt{
 
 struct parameters{
-	float initEq;
-	float orderSize;
-	long fastMA;
-	long slowMA;
+	float fPar[FLOAT_PARAMETERS];
+	long lPar[LONG_PARAMETERS];
 };
 
 struct stockData{
@@ -64,10 +62,7 @@ struct execution{
 //	execution();
 };
 
-void setParameters(thrust::host_vector<parameters>& par);
-
 void extractRawData(char* filename,thrust::host_vector<bt::stockData>& data,bool header=false);
-
 
 }//namespace bt
 

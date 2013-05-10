@@ -3,15 +3,6 @@
 
 namespace bt{
 
-void setParameters(thrust::host_vector<parameters>& par){
-	for (int i=0;i<par.size();i++){
-		par[i].fastMA=20;
-		par[i].slowMA=60;
-		par[i].orderSize=1000;
-		par[i].initEq=100000;
-	}
-}
-
 void extractRawData(char* filename,thrust::host_vector<bt::stockData>& data,bool header){
 	std::ifstream input(filename);
 	std::string line;
