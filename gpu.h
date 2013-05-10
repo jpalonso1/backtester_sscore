@@ -28,11 +28,13 @@ void initExec(bt::execution& exec){
 
 __device__ __host__
 void clearResult(bt::result& res){
-	res.PnL=0;
-	res.sharpe=0;
-	res.maxDrawdown=0;
-	res.numTransactions=0;
-	res.avgDailyProfit=0;
+	for (int i=0;i<=DATA_ELEMENTS;i++){
+		res.PnL[i]=0;
+		res.sharpe[i]=0;
+		res.maxDrawdown[i]=0;
+		res.numTransactions[i]=0;
+		res.avgDailyProfit[i]=0;
+	}
 }
 
 
@@ -44,9 +46,8 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 	long tempMaxDraw[DATA_ELEMENTS];
 	long tempMaxDrawTotal=0;
 	//initialize results
-	clearResult(exec.resTotal);
+	clearResult(exec.result);
 	for (int sym=0;sym<DATA_ELEMENTS;sym++){
-		clearResult(exec.resInd[sym]);
 		netPos[sym]=0;
 		lastExec[sym]=0;
 		tempMaxDraw[sym]=0;
@@ -69,16 +70,16 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 			//updateDrawdown
 			tempMaxDraw[sym]-=periodPnL;
 			if (tempMaxDraw[sym]<0)tempMaxDraw[sym]=0;
-			if (exec.resInd[sym].maxDrawdown<tempMaxDraw[sym])
-				exec.resInd[sym].maxDrawdown=tempMaxDraw[sym];
+			if (exec.result.maxDrawdown[sym]<tempMaxDraw[sym])
+				exec.result.maxDrawdown[sym]=tempMaxDraw[sym];
 			tempMaxDrawTotal-=periodPnL;
 			if (tempMaxDrawTotal<0)tempMaxDrawTotal=0;
-			if (exec.resTotal.maxDrawdown<tempMaxDrawTotal)
-				exec.resTotal.maxDrawdown=tempMaxDrawTotal;
+			if (exec.result.maxDrawdown[DATA_ELEMENTS]<tempMaxDrawTotal)
+				exec.result.maxDrawdown[DATA_ELEMENTS]=tempMaxDrawTotal;
 //			if (sym==0)testOut<<i<<",draw:,"<<exec.resTotal.maxDrawdown<<",periodPnL,"<<
 //					periodPnL<<",tempDraw,"<<tempMaxDrawTotal<<endl;
-			exec.resInd[sym].PnL+=periodPnL;
-			exec.resTotal.PnL+=periodPnL;
+			exec.result.PnL[sym]+=periodPnL;
+			exec.result.PnL[DATA_ELEMENTS]+=periodPnL;
 		}
 //			testOut<<i<<",pos,"<<netPos<<",PnL,"<<periodPnL<<",total,"<<
 //					totalPnL<<endl;
@@ -185,6 +186,12 @@ void aggregateResults(bt::execution& exec,bt::stockData* data,long dataSize){
 //	}
 }
 
+__device__ __host__
+void optimizeParameters(){
+
+}
+
+
 struct individual_run
 {
 	//hold a copy of the pointer to data
@@ -194,7 +201,7 @@ struct individual_run
     	data(_data),dataSize(_dataSize) {}
 
     __device__ __host__
-    bt::execution operator()(const bt::parameters& par, const long& Y) const {
+    bt::result operator()(const bt::parameters& par, const long& Y) const {
     	//to be run every iteration of the backtest
     	bt::execution execTemp;
     	initExec(execTemp);
@@ -202,7 +209,7 @@ struct individual_run
     	bt::runExecution(data,dataSize,execTemp,par);
     	aggregateResults(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
-    	return execTemp;
+    	return execTemp.result;
 	}
 };
 

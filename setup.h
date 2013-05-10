@@ -48,17 +48,16 @@ struct trade{
 };
 
 struct result{
-	float PnL;
-	float sharpe;
-	float maxDrawdown;
-	float numTransactions;
-	float avgDailyProfit;
+	float PnL[DATA_ELEMENTS+1];
+	float sharpe[DATA_ELEMENTS+1];
+	float maxDrawdown[DATA_ELEMENTS+1];
+	float numTransactions[DATA_ELEMENTS+1];
+	float avgDailyProfit[DATA_ELEMENTS+1];
 };
 
 struct execution{
 	trade trade[DATA_ELEMENTS];
-	result resInd[DATA_ELEMENTS];
-	result resTotal;
+	result result;
 	char symbol[DATA_ELEMENTS][20];
 	long numTrades[DATA_ELEMENTS];
 //	execution();

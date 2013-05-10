@@ -5,7 +5,6 @@
 
 #include "setup.h"
 
-//std::ofstream testOut("testOut.csv");
 static char* dataFile={"AAPLclean.csv"};
 
 namespace bt{
