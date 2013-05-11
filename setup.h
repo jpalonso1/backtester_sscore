@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
+#include <cmath>
 
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
@@ -19,6 +20,9 @@ using std::endl;
 const int DATA_ELEMENTS=3;
 const int LONG_PARAMETERS=5;
 const int FLOAT_PARAMETERS=5;
+const int YEAR_PERIODS=252;
+//only "neutral" strategies implemented for sharpe
+const float BENCHMARK=0;
 
 namespace bt{
 
@@ -43,6 +47,9 @@ struct trade{
 	long posSize[100];
 	//"time" (vector element location) of execution relative to data
 	long location[100];
+	float price[100];
+
+
 	//pnl for closing trades
 	float realPnL[100];
 };

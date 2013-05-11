@@ -55,6 +55,13 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 
 	float totalPnL=0;
 	float periodPnL=0;
+	//used for sharpe calculation
+	float sdSum[DATA_ELEMENTS+1];
+	float returnSum[DATA_ELEMENTS+1];
+	for (int sym=0;sym<=DATA_ELEMENTS;sym++){
+		returnSum[sym]=0;
+		sdSum[sym]=0;
+	}
 	//loop through each record
 	for (int i=1;i<dataSize;i++){
 		for (int sym=0;sym<DATA_ELEMENTS;sym++){
@@ -80,10 +87,57 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 //					periodPnL<<",tempDraw,"<<tempMaxDrawTotal<<endl;
 			exec.result.PnL[sym]+=periodPnL;
 			exec.result.PnL[DATA_ELEMENTS]+=periodPnL;
+			if(data[i-1].d[sym]!=0){
+				returnSum[sym]+=periodPnL/data[i-1].d[sym];
+				returnSum[DATA_ELEMENTS]+=periodPnL/data[i-1].d[sym];
+			}
 		}
-//			testOut<<i<<",pos,"<<netPos<<",PnL,"<<periodPnL<<",total,"<<
-//					totalPnL<<endl;
 	}
+
+	//get avg returns
+	for (int sym=0;sym<=DATA_ELEMENTS;sym++){
+		exec.result.avgDailyProfit[sym]=returnSum[sym]/dataSize;
+	}
+
+	float periodReturn;
+	float periodReturnTotal;
+
+
+	for (int sym=0;sym<DATA_ELEMENTS;sym++){
+		netPos[sym]=0;
+		lastExec[sym]=0;
+		tempMaxDraw[sym]=0;
+	}
+	//get standard deviations
+	for (int i=1;i<dataSize;i++){
+		periodReturnTotal=0;
+		for (int sym=0;sym<DATA_ELEMENTS;sym++){
+			//get PnL based on difference from previous record
+			if (netPos[sym]==0)periodPnL=0;
+			else periodPnL=netPos[sym]*(data[i].d[sym]-data[i-1].d[sym]);
+
+			//positions updated at the end of the day if needed
+			if (i==exec.trade[sym].location[lastExec[sym]]){
+				netPos[sym]+=exec.trade[sym].posSize[lastExec[sym]];
+				lastExec[sym]++;
+			}
+			if (data[i-1].d[sym]!=0)periodReturn=periodPnL/data[i-1].d[sym];
+			else periodReturn=0;
+			periodReturnTotal+=periodReturn;
+			sdSum[sym]+=(periodReturn-exec.result.avgDailyProfit[sym])*
+					(periodReturn-exec.result.avgDailyProfit[sym]);
+		}
+		sdSum[DATA_ELEMENTS]+=(periodReturnTotal-exec.result.avgDailyProfit[DATA_ELEMENTS])*
+				(periodReturnTotal-exec.result.avgDailyProfit[DATA_ELEMENTS]);
+	}
+	float sd;
+	for (int sym=0;sym<DATA_ELEMENTS;sym++){
+		//get sd
+		sd=sqrt(sdSum[sym]/dataSize);
+		exec.result.sharpe[sym]=sqrt(YEAR_PERIODS)*(exec.result.avgDailyProfit[sym]/sd);
+	}
+	sd=sqrt(sdSum[DATA_ELEMENTS]/dataSize);
+	exec.result.sharpe[DATA_ELEMENTS]=sqrt(YEAR_PERIODS)*(exec.result.avgDailyProfit[DATA_ELEMENTS]/sd);
 }
 
 
@@ -157,7 +211,7 @@ void aggregateResults(bt::execution& exec,bt::stockData* data,long dataSize){
 				}
 				//clear partial if crossed
 				if (thisPos*netPos>0)partialFill=0;
-				float avgPrice=abs(priceSum/thisPos);
+				float avgPrice=abs(float(priceSum/thisPos));
 				//update pnl
 				exec.trade[sym].realPnL[i]=thisPos*(avgPrice-thisPrice);
 			}
@@ -186,10 +240,28 @@ void aggregateResults(bt::execution& exec,bt::stockData* data,long dataSize){
 //	}
 }
 
-__device__ __host__
-void optimizeParameters(){
 
-}
+struct return_max
+{
+	__device__ __host__
+	bool operator()(bt::result x, bt::result y)
+	{
+		if (x.PnL[DATA_ELEMENTS]>y.PnL[DATA_ELEMENTS])return true;
+		else return false;
+	}
+};
+
+struct sharpe_max
+{
+	__device__ __host__
+	bool operator()(bt::result x, bt::result y)
+	{
+		if (x.sharpe[DATA_ELEMENTS]>y.sharpe[DATA_ELEMENTS])return true;
+		else return false;
+	}
+};
+
+
 
 
 struct individual_run

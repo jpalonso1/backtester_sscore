@@ -23,6 +23,10 @@ void runBacktest(thrust::device_vector<bt::stockData>& data,
 //    thrust::sort(Y.begin(), Y.end(),custom_sort(dataPtr,data.size()));
 }
 
+void optimizeParameters(thrust::device_vector<bt::result>& res){
+	thrust::sort(res.begin(),res.end(),return_max());
+}
+
 int main(){
 	cout<<"starting"<<endl;
 	XLog logMain("Main process");
@@ -34,7 +38,7 @@ int main(){
 
 	//create vector of parameters to be tested
 	thrust::host_vector<bt::parameters> parh;
-	long VEC_SIZE=setParameters(parh);;
+	long VEC_SIZE=setParameters(parh);
     cout<<"Vector Size: "<<VEC_SIZE<<endl;
 
     thrust::device_vector<bt::parameters> pard=parh;
@@ -44,16 +48,27 @@ int main(){
 
     XLog logBacktest("Run backtest");
     logBacktest.start();
-    runBacktest(datad,pard,res,VEC_SIZE);
+    runBacktest(datad
+    		,pard,res,VEC_SIZE);
     logBacktest.end();
+
+
+    XLog logSort("Sorting");
+    logSort.start();
+    optimizeParameters(res);
+    logSort.end();
 
     thrust::host_vector<bt::result> resh=res;
 
 //    cout<<exech[0].trade[0].location[0]<<endl;
 //    cout<<exech[0].trade[0].posSize[0]<<endl;
     cout<<"Parameters vec size: "<<VEC_SIZE<<endl;
-    cout<<"Sum PnL: "<<resh[0].PnL[0]<<endl;
-    cout<<"Max Draw: "<<resh[0].maxDrawdown[0]<<endl;
+    for (int i=0;i<10;i++){
+		cout<<i<<"Sum PnL: "<<resh[i].PnL[DATA_ELEMENTS];
+		cout<<" sharpe: "<<resh[i].sharpe[DATA_ELEMENTS];
+		cout<<" avgdailyProf: "<<resh[i].avgDailyProfit[DATA_ELEMENTS];
+		cout<<" Max Draw: "<<resh[i].maxDrawdown[DATA_ELEMENTS]<<endl;
+    }
     logMain.end();
 	return 0;
 }
