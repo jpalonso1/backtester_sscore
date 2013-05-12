@@ -83,12 +83,12 @@ inline long maParameters(thrust::host_vector<bt::parameters>& par){
 	tempPar.fPar[cutoff]=0.50;
 	tempPar.lPar[orderSize]=10000;
 
-	for (int b=0;b<=5;b++){
-	tempPar.lPar[atrlen]=30+2*b;
-	for (int c=0;c<=5;c++){
+	for (int b=0;b<100;b++){
+	tempPar.lPar[atrlen]=10+b;
+	for (int c=0;c<100;c++){
 	tempPar.lPar[fastMA]=20+c;
-	for (int d=0;d<5;d++){
-		tempPar.lPar[slowMA]=60+d;
+	for (int d=0;d<100;d++){
+		tempPar.lPar[slowMA]=40+2*d;
 		par.push_back(tempPar);
 		count++;
 	}

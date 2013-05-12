@@ -22,7 +22,7 @@ const int DATA_ELEMENTS=5;
 const int LONG_PARAMETERS=5;
 const int FLOAT_PARAMETERS=5;
 const int YEAR_PERIODS=252;
-const int MAX_ORDERS=200;
+const int MAX_ORDERS=100;
 //only "neutral" strategies implemented for sharpe
 const float BENCHMARK=0;
 

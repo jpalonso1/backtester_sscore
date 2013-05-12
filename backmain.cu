@@ -49,9 +49,9 @@ int main(){
     //run the backtesting on gpu
     XLog logBacktest("Run backtest");
     logBacktest.start();
+    logBacktest.log("Total simulations to run: ",VEC_SIZE);
     runBacktest(datad
     		,pard,res,VEC_SIZE);
-    logBacktest.log("Total simulations run: ",VEC_SIZE);
     logBacktest.end();
 
     //sort on gpu
