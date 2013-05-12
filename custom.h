@@ -4,7 +4,7 @@
 #define CUSTOM_H_
 
 #include "setup.h"
-#include "s_momentum.h"
+//#include "s_momentum.h"
 #include "s_crossingma.h"
 
 static char* dataFile={"multiStock.csv"};
