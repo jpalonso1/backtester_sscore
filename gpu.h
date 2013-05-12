@@ -23,6 +23,12 @@ void initExec(bt::execution& exec){
 	exec.numTrades[0]=0;
     for (int sym=0;sym<DATA_ELEMENTS;sym++){
     	exec.numTrades[sym]=0;
+    	for (int i=0;i<MAX_ORDERS;i++){
+    		exec.trade[sym].location[i]=0;
+    		exec.trade[sym].price[i]=0;
+    		exec.trade[sym].realPnL[i]=0;
+    		exec.trade[sym].posSize[i]=0;
+    	}
     }
 }
 
@@ -75,7 +81,6 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 			unallocPnL[sym]+=periodPnL;
 			//positions updated at the end of the day if needed
 			if (i==exec.trade[sym].location[lastExec[sym]]){
-//				if(sym==0)cout<<lastExec[sym]<<" net pos: "<<netPos[sym]<<endl;
 				netPos[sym]+=exec.trade[sym].posSize[lastExec[sym]];
 				exec.trade[sym].realPnL[lastExec[sym]]=unallocPnL[sym];
 				lastExec[sym]++;
@@ -220,9 +225,11 @@ struct individual_run
     	bt::runExecution(data,dataSize,execTemp,par);
     	forceClose(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
+    	execTemp.result.pars=par;
 //    	if(Y==0)printExecutions(execTemp);
     	return execTemp.result;
-	}
+
+    }
 };
 
 #endif /* GPU_H_ */

@@ -18,15 +18,22 @@
 using std::cout;
 using std::endl;
 
-const int DATA_ELEMENTS=5;
+const int DATA_ELEMENTS=35*2;
 const int LONG_PARAMETERS=5;
 const int FLOAT_PARAMETERS=5;
 const int YEAR_PERIODS=252;
-const int MAX_ORDERS=100;
+const int MAX_ORDERS=2000;
 //only "neutral" strategies implemented for sharpe
 const float BENCHMARK=0;
 
 namespace bt{
+
+//long parameters
+//enum {atrlen=0,fastMA=1,slowMA=2,orderSize=3};
+enum {orderSize=1,windowSize=2};
+//float parameters
+//enum {cutoff=0};
+enum {SBE=0,SBC=1,SSE=2,SSC=3};
 
 struct parameters{
 	//DES:holds floating (fPar) and long (lPar)
@@ -61,6 +68,7 @@ struct result{
 	float maxDrawdown[DATA_ELEMENTS+1];
 	float numTransactions[DATA_ELEMENTS+1];
 	float avgDailyProfit[DATA_ELEMENTS+1];
+	parameters pars;
 };
 
 struct execution{
@@ -74,17 +82,25 @@ struct execution{
 void extractRawData(char* filename,thrust::host_vector<bt::stockData>& data,bool header=false);
 
 __device__ __host__
-inline void recordTrade(bt::stockData* data,bt::execution& exec,
-		long sym,long location,long amount){
+inline long recordTrade(bt::stockData* data,bt::execution& exec,
+		long sym,long location,long amount,bool fixedShares=false){
 	//get number of shares (rounded down) to get amount
 	long adjAmount=amount/data[location].d[sym];
-	exec.trade[sym].posSize[exec.numTrades[sym]]=adjAmount;
+	if (fixedShares==false)exec.trade[sym].posSize[exec.numTrades[sym]]=adjAmount;
+	else exec.trade[sym].posSize[exec.numTrades[sym]]=amount;
 	exec.trade[sym].price[exec.numTrades[sym]]=data[location].d[sym];
 	exec.trade[sym].location[exec.numTrades[sym]]=location;
 	exec.numTrades[sym]++;
+//	if (exec.numTrades[sym]==MAX_ORDERS)cout<<"WARNING: max orders reached"<<endl;
+	return exec.trade[sym].posSize[exec.numTrades[sym]];
 }
 
-
+__device__ __host__
+inline long closePosition(bt::stockData* data,bt::execution& exec,
+		int sym,long location){
+	long closeAmount=-exec.trade[sym].posSize[exec.numTrades[sym]-1];
+	return recordTrade(data,exec,sym,location,closeAmount,true);
+}
 }//namespace bt
 
 #endif /* SETUP_H_ */

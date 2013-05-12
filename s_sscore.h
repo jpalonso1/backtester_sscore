@@ -5,6 +5,8 @@
 #ifndef S_SSCORE_H_
 #define S_SSCORE_H_
 
+const int MAX_WINDOW=100;
+
 namespace bt{
 
 struct ols_pair{
@@ -18,6 +20,12 @@ struct trade_param{
     double s_score;
 };
 
+
+__device__ __host__
+float getReturn(bt::stockData* data,int sym,long position){
+	return (data[position].d[sym]/data[position-1].d[sym])-1.0;
+}
+__device__ __host__
 ols_pair ols_regression(float x_var[], float y_var[], int win_size){
 
     float sum_x(0), sum_y(0);
@@ -46,6 +54,8 @@ ols_pair ols_regression(float x_var[], float y_var[], int win_size){
     return ols_result;
 }
 
+
+__device__ __host__
 trade_param comp_s_score(float x_var[], float y_var[], int win_size){
 
     // This is the final output, which contains the hedge_ratio and s-score.
@@ -56,8 +66,8 @@ trade_param comp_s_score(float x_var[], float y_var[], int win_size){
     trade_param_output.hedge_ratio = ols_return.beta;
 
     // Find the residues of the regression result of the returns.
-    float cum_error[win_size];
-    float resid[win_size-1], resid_lag[win_size-1];
+    float cum_error[MAX_WINDOW];
+    float resid[MAX_WINDOW-1], resid_lag[MAX_WINDOW-1];
 
     cum_error[0] = y_var[0] - (ols_return.alpha + ols_return.beta*x_var[0]);
 
@@ -104,12 +114,13 @@ trade_param comp_s_score(float x_var[], float y_var[], int win_size){
 //    cout << fixed << setprecision(9) << trade_param_output.hedge_ratio << endl << trade_param_output.s_score << endl;
 //}
 
+__device__ __host__
 void runSScore(bt::stockData* data,bt::execution& exec,
 		long dataSize,long orderSize,long win_size,
 		int sym, int etf,float SBE,float SBC,float SSE,float SSC){
 	trade_param tempS;
 	//x is etf, y is sym
-	float x_var[win_size],y_var[win_size];
+	float x_var[MAX_WINDOW],y_var[MAX_WINDOW];
 	long winStart=0;
 	//1 is long sym short etf, -1 opposite
 	int currentPosition=0;
@@ -122,6 +133,7 @@ void runSScore(bt::stockData* data,bt::execution& exec,
 			x_var[j]=(data[winStart+j].d[etf]/data[winStart+j-1].d[etf])-1.0;
 			y_var[j]=(data[winStart+j].d[sym]/data[winStart+j-1].d[sym])-1.0;
 		}
+
 		tempS=comp_s_score(x_var,y_var,win_size);
 		float sScore=tempS.s_score;
 
