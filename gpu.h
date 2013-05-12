@@ -37,7 +37,6 @@ void clearResult(bt::result& res){
 	}
 }
 
-
 __device__ __host__
 inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 
@@ -101,7 +100,6 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 
 	float periodReturn;
 	float periodReturnTotal;
-
 
 	for (int sym=0;sym<DATA_ELEMENTS;sym++){
 		netPos[sym]=0;
@@ -260,9 +258,6 @@ struct sharpe_max
 		else return false;
 	}
 };
-
-
-
 
 struct individual_run
 {

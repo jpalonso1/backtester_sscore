@@ -4,7 +4,6 @@
 #include "setup.h"
 #include "gpu.h"
 #include "xlog.h"
-#include "custom.h"
 
 using namespace std;
 
@@ -68,6 +67,10 @@ int main(){
 		cout<<" sharpe: "<<resh[i].sharpe[DATA_ELEMENTS];
 		cout<<" avgdailyProf: "<<resh[i].avgDailyProfit[DATA_ELEMENTS];
 		cout<<" Max Draw: "<<resh[i].maxDrawdown[DATA_ELEMENTS]<<endl;
+    }
+
+    for (int sym=0;sym<DATA_ELEMENTS;sym++){
+		cout<<"Single PnL: "<<resh[0].PnL[sym]<<endl;
     }
     logMain.end();
 	return 0;
