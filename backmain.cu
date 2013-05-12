@@ -1,4 +1,4 @@
-//Juan Pablo Alonso Escobar
+//Juan Pablo Alonso
 //GPU Backtester 1.0
 
 #include "setup.h"
@@ -18,59 +18,54 @@ void runBacktest(thrust::device_vector<bt::stockData>& data,
     //transform the vector using the specified function
     thrust::transform(par.begin(), par.end(), Y.begin(), res.begin(),
 			individual_run(dataPtr,data.size()));
-    //optimize results.
-//    thrust::sort(Y.begin(), Y.end(),custom_sort(dataPtr,data.size()));
+
 }
 
 void optimizeParameters(thrust::device_vector<bt::result>& res){
-	thrust::sort(res.begin(),res.end(),return_max());
+	thrust::sort(res.begin(),res.end(),sharpe_max());
 }
 
 int main(){
-	cout<<"starting"<<endl;
-	XLog logMain("Main process");
-	thrust::host_vector<bt::stockData> datah;
+	XLog logMain("Total time");
+
+	//get data
 	XLog logExtract("Extracting data");
+	logExtract.start();
+	thrust::host_vector<bt::stockData> datah;
 	bt::extractRawData(dataFile,datah,true);
+    thrust::device_vector<bt::stockData> datad=datah;
 	logExtract.log("Lines: ",datah.size());
 	logExtract.end();
 
 	//create vector of parameters to be tested
+	XLog logPar("Setting parameters");
+	logPar.start();
 	thrust::host_vector<bt::parameters> parh;
 	long VEC_SIZE=setParameters(parh);
-    cout<<"Vector Size: "<<VEC_SIZE<<endl;
-
     thrust::device_vector<bt::parameters> pard=parh;
-    thrust::device_vector<bt::stockData> datad=datah;
-//    thrust::device_vector<bt::execution> exec(VEC_SIZE);
     thrust::device_vector<bt::result> res(VEC_SIZE);
 
+
+    //run the backtesting on gpu
     XLog logBacktest("Run backtest");
     logBacktest.start();
     runBacktest(datad
     		,pard,res,VEC_SIZE);
+    logBacktest.log("Total simulations run: ",VEC_SIZE);
     logBacktest.end();
 
-
+    //sort on gpu
     XLog logSort("Sorting");
     logSort.start();
     optimizeParameters(res);
+    thrust::host_vector<bt::result> resh=res;
     logSort.end();
 
-    thrust::host_vector<bt::result> resh=res;
-
-//    cout<<exech[0].trade[0].location[0]<<endl;
-//    cout<<exech[0].trade[0].posSize[0]<<endl;
-    cout<<"Parameters vec size: "<<VEC_SIZE<<endl;
+    //sample output
     for (int i=0;i<10;i++){
-		cout<<i<<"Sum PnL: "<<resh[i].PnL[DATA_ELEMENTS];
+		cout<<i<<" - Sum PnL: "<<resh[i].PnL[DATA_ELEMENTS];
 		cout<<" sharpe: "<<resh[i].sharpe[DATA_ELEMENTS];
-		cout<<" avgdailyProf: "<<resh[i].avgDailyProfit[DATA_ELEMENTS];
-		cout<<" Max Draw: "<<resh[i].maxDrawdown[DATA_ELEMENTS]<<endl;
-    }
-
-    for (int sym=0;sym<DATA_ELEMENTS;sym++){
-		cout<<"Single PnL: "<<resh[0].PnL[sym]<<endl;
+		cout<<" Max Drawdown: "<<resh[i].maxDrawdown[DATA_ELEMENTS]<<endl;
     }
     logMain.end();
 	return 0;

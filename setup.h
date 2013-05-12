@@ -1,4 +1,5 @@
-//Juan Pablo Alonso Escobar
+//Juan Pablo Alonso
+
 #ifndef SETUP_H_
 #define SETUP_H_
 
@@ -21,7 +22,7 @@ const int DATA_ELEMENTS=5;
 const int LONG_PARAMETERS=5;
 const int FLOAT_PARAMETERS=5;
 const int YEAR_PERIODS=252;
-const int MAX_ORDERS=500;
+const int MAX_ORDERS=200;
 //only "neutral" strategies implemented for sharpe
 const float BENCHMARK=0;
 
@@ -71,6 +72,18 @@ struct execution{
 };
 
 void extractRawData(char* filename,thrust::host_vector<bt::stockData>& data,bool header=false);
+
+__device__ __host__
+inline void recordTrade(bt::stockData* data,bt::execution& exec,
+		long sym,long location,long amount){
+	//get number of shares (rounded down) to get amount
+	long adjAmount=amount/data[location].d[sym];
+	exec.trade[sym].posSize[exec.numTrades[sym]]=adjAmount;
+	exec.trade[sym].price[exec.numTrades[sym]]=data[location].d[sym];
+	exec.trade[sym].location[exec.numTrades[sym]]=location;
+	exec.numTrades[sym]++;
+}
+
 
 }//namespace bt
 

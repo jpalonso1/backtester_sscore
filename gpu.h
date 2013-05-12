@@ -41,6 +41,7 @@ __device__ __host__
 inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 
 	float netPos[DATA_ELEMENTS];
+	float unallocPnL[DATA_ELEMENTS];
 	long lastExec[DATA_ELEMENTS];
 	long tempMaxDraw[DATA_ELEMENTS];
 	long tempMaxDrawTotal=0;
@@ -48,6 +49,7 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 	clearResult(exec.result);
 	for (int sym=0;sym<DATA_ELEMENTS;sym++){
 		netPos[sym]=0;
+		unallocPnL[sym]=0;
 		lastExec[sym]=0;
 		tempMaxDraw[sym]=0;
 	}
@@ -67,11 +69,25 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 			//get PnL based on difference from previous record
 			if (netPos[sym]==0)periodPnL=0;
 			else periodPnL=netPos[sym]*(data[i].d[sym]-data[i-1].d[sym]);
-
+			if (sym==0)testOut<<i<<",pos:,"<<netPos[sym]<<",unalloc:,"<<
+					unallocPnL[sym]<<",lastExec,"<<lastExec[sym]<<
+					",periodPnL,"<<periodPnL<<endl;
+			unallocPnL[sym]+=periodPnL;
 			//positions updated at the end of the day if needed
 			if (i==exec.trade[sym].location[lastExec[sym]]){
+//				if(sym==0)cout<<lastExec[sym]<<" net pos: "<<netPos[sym]<<endl;
 				netPos[sym]+=exec.trade[sym].posSize[lastExec[sym]];
+				exec.trade[sym].realPnL[lastExec[sym]]=unallocPnL[sym];
 				lastExec[sym]++;
+				//allocate profit
+				unallocPnL[sym]=0;
+			}
+
+			exec.result.PnL[sym]+=periodPnL;
+			exec.result.PnL[DATA_ELEMENTS]+=periodPnL;
+			if(data[i-1].d[sym]!=0){
+				returnSum[sym]+=periodPnL/data[i-1].d[sym];
+				returnSum[DATA_ELEMENTS]+=periodPnL/data[i-1].d[sym];
 			}
 			//updateDrawdown
 			tempMaxDraw[sym]-=periodPnL;
@@ -82,14 +98,6 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 			if (tempMaxDrawTotal<0)tempMaxDrawTotal=0;
 			if (exec.result.maxDrawdown[DATA_ELEMENTS]<tempMaxDrawTotal)
 				exec.result.maxDrawdown[DATA_ELEMENTS]=tempMaxDrawTotal;
-//			if (sym==0)testOut<<i<<",draw:,"<<exec.resTotal.maxDrawdown<<",periodPnL,"<<
-//					periodPnL<<",tempDraw,"<<tempMaxDrawTotal<<endl;
-			exec.result.PnL[sym]+=periodPnL;
-			exec.result.PnL[DATA_ELEMENTS]+=periodPnL;
-			if(data[i-1].d[sym]!=0){
-				returnSum[sym]+=periodPnL/data[i-1].d[sym];
-				returnSum[DATA_ELEMENTS]+=periodPnL/data[i-1].d[sym];
-			}
 		}
 	}
 
@@ -119,6 +127,8 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 				netPos[sym]+=exec.trade[sym].posSize[lastExec[sym]];
 				lastExec[sym]++;
 			}
+
+
 			if (data[i-1].d[sym]!=0)periodReturn=periodPnL/data[i-1].d[sym];
 			else periodReturn=0;
 			periodReturnTotal+=periodReturn;
@@ -138,106 +148,28 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 	exec.result.sharpe[DATA_ELEMENTS]=sqrt(YEAR_PERIODS)*(exec.result.avgDailyProfit[DATA_ELEMENTS]/sd);
 }
 
-
-
 __device__ __host__
-void aggregateResults(bt::execution& exec,bt::stockData* data,long dataSize){
-	//find the PnL for each execution IF it is closing an exisiting position
-	long thisPos=0;
-	long partSize=0;
+void forceClose(bt::execution& exec,bt::stockData* data,long dataSize){
+	//DES: check position at the end and create closing trade if it exists
 	for (int sym=0;sym<DATA_ELEMENTS;sym++)
 		{
-		//when last position was closed or reversed
-		long lastClose=0;
-		//direction (1 buy, 0 sell)
-		int dir;
 		//current net positon
-		long netPos=exec.trade[sym].posSize[0];
-		long thisPos,targetFill;
-		float thisPrice;
-		long partialFill=0;
-		bool closed;
+		long netPos=0;
 
-//		//loop through each execution and update results
-		for (long i=1;i<=exec.numTrades[sym];i++){
-//		for (long i=1;i<min(10,int(exec.numTrades[sym]));i++){
-			//set position,price and direction
-			thisPos=exec.trade[sym].posSize[i];
-			thisPrice=data[exec.trade[sym].location[i]].d[sym];
-			if (thisPos>0)dir=1;
-			else dir=0;
-			//check if closing position (reducing abs net)
-			if (thisPos*netPos<0)closed=true;
-			else closed=false;
-			//update net position
-			netPos+=thisPos;
+		for (int i=0;i<exec.numTrades[sym];i++){
+			netPos+=exec.trade[sym].posSize[i];
+		}
 
-			//Check for position closed, capture profit
-			if (closed==true){
-				//check if trade exceeds current position (reversal) and adjust
-				if (thisPos*netPos>0)thisPos-=netPos;
-				targetFill=thisPos;
-				float priceSum=0;
-				int dirCheck=0;
-				for(long j=lastClose;j<exec.numTrades[sym];j++){
-					//get checked trade direction
-					if (exec.trade[sym].posSize[j]>0)dirCheck=1;
-					else dirCheck=0;
-					//check direction. if trades do not cancel each other, continue
-					if (dirCheck==dir)continue;
-
-					float posCheck=exec.trade[sym].posSize[j]+partialFill;
-
-
-					float priceCheck=data[exec.trade[sym].location[j]].d[sym];
-					//check for enough shares at current trade
-					if (abs(posCheck)>abs(targetFill)){
-						priceSum+=targetFill*priceCheck;
-						partialFill+=targetFill;
-						targetFill=0;
-						lastClose=j;
-					}
-					//if check is smaller, take entire position and move on
-					else{
-						priceSum+=posCheck*priceCheck;
-						partialFill=0;
-						targetFill+=posCheck;
-						lastClose=j+1;
-					}
-					//check if position has been filled
-					if (targetFill==0)break;
-				}
-				//clear partial if crossed
-				if (thisPos*netPos>0)partialFill=0;
-				float avgPrice=abs(float(priceSum/thisPos));
-				//update pnl
-				exec.trade[sym].realPnL[i]=thisPos*(avgPrice-thisPrice);
-			}
-			//add a "closer"execution that assumes position is
-			//forcefully closed at last date
-			if (((i+1)==exec.numTrades[sym]) && (netPos!=0)){
-				exec.trade[sym].posSize[exec.numTrades[sym]]=-netPos;
-				exec.trade[sym].location[exec.numTrades[sym]]=dataSize-1;
-				exec.numTrades[sym]++;
-			}
+		//add forced closing
+		if (netPos!=0){
+			float closePrice=data[dataSize-1].d[sym];
+			exec.trade[sym].posSize[exec.numTrades[sym]]=-netPos;
+			exec.trade[sym].price[exec.numTrades[sym]]=closePrice;
+			exec.trade[sym].location[exec.numTrades[sym]]=dataSize-1;
+			exec.numTrades[sym]++;
 		}
 	}
-
-//	//TEMP: print
-//	for (int sym=0;sym<1;sym++){
-//		float execPnL=0;
-//		for (long i=0;i<(exec.numTrades[sym]);i++){
-//			float thisPos=exec.trade[sym].posSize[i];
-//			float thisPrice=data[exec.trade[sym].location[i]].d[sym];
-//			execPnL+=exec.trade[sym].realPnL[i];
-//			testOut<<i<<",price,"<<thisPrice<<",pos,"<<thisPos<<",PnL,"<<
-//					exec.trade[sym].realPnL[i]<<",loc,"<<
-//					exec.trade[sym].location[i]<<endl;
-//		}
-//
-//	}
 }
-
 
 struct return_max
 {
@@ -259,6 +191,19 @@ struct sharpe_max
 	}
 };
 
+//ONLY ON OPENMP
+__device__ __host__
+void printExecutions(bt::execution& exec){
+	testOut<<"symbol,location,price,size,pnl"<<endl;
+	for (int sym=0;sym<DATA_ELEMENTS;sym++){
+		for (int i=0;i<exec.numTrades[sym];i++){
+			testOut<<sym<<","<<exec.trade[sym].location[i]<<","<<
+				exec.trade[sym].price[i]<<","<<exec.trade[sym].posSize[i]<<
+				","<<exec.trade[sym].realPnL[i]<<endl;
+		}
+	}
+}
+
 struct individual_run
 {
 	//hold a copy of the pointer to data
@@ -272,10 +217,10 @@ struct individual_run
     	//to be run every iteration of the backtest
     	bt::execution execTemp;
     	initExec(execTemp);
-
     	bt::runExecution(data,dataSize,execTemp,par);
-    	aggregateResults(execTemp,data,dataSize);
+    	forceClose(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
+    	if(Y==0)printExecutions(execTemp);
     	return execTemp.result;
 	}
 };

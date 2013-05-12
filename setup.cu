@@ -27,7 +27,6 @@ void extractRawData(char* filename,thrust::host_vector<bt::stockData>& data,bool
 			strcpy(tempData.date,date);
 		}
 		else{
-			cout<<"Last line parsed"<<endl;
 			break;
 		}
 
