@@ -141,11 +141,11 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 	float sd;
 	for (int sym=0;sym<DATA_ELEMENTS;sym++){
 		//get sd
-		sd=sqrt(sdSum[sym]/dataSize);
-		exec.result.sharpe[sym]=sqrt(YEAR_PERIODS)*(exec.result.avgDailyProfit[sym]/sd);
+		sd=sqrtf(sdSum[sym]/dataSize);
+		exec.result.sharpe[sym]=sqrtf(YEAR_PERIODS)*(exec.result.avgDailyProfit[sym]/sd);
 	}
-	sd=sqrt(sdSum[DATA_ELEMENTS]/dataSize);
-	exec.result.sharpe[DATA_ELEMENTS]=sqrt(YEAR_PERIODS)*(exec.result.avgDailyProfit[DATA_ELEMENTS]/sd);
+	sd=sqrtf(sdSum[DATA_ELEMENTS]/dataSize);
+	exec.result.sharpe[DATA_ELEMENTS]=sqrtf(YEAR_PERIODS)*(exec.result.avgDailyProfit[DATA_ELEMENTS]/sd);
 }
 
 __device__ __host__
