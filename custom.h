@@ -8,7 +8,7 @@
 #include "s_crossingma.h"
 
 static char* dataFile={"multiStock.csv"};
-static std::ofstream testOut("testOut.csv");
+//static std::ofstream testOut("testOut.csv");
 
 namespace bt{
 

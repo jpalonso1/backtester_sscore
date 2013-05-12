@@ -69,9 +69,9 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize){
 			//get PnL based on difference from previous record
 			if (netPos[sym]==0)periodPnL=0;
 			else periodPnL=netPos[sym]*(data[i].d[sym]-data[i-1].d[sym]);
-			if (sym==0)testOut<<i<<",pos:,"<<netPos[sym]<<",unalloc:,"<<
-					unallocPnL[sym]<<",lastExec,"<<lastExec[sym]<<
-					",periodPnL,"<<periodPnL<<endl;
+//			if (sym==0)testOut<<i<<",pos:,"<<netPos[sym]<<",unalloc:,"<<
+//					unallocPnL[sym]<<",lastExec,"<<lastExec[sym]<<
+//					",periodPnL,"<<periodPnL<<endl;
 			unallocPnL[sym]+=periodPnL;
 			//positions updated at the end of the day if needed
 			if (i==exec.trade[sym].location[lastExec[sym]]){
@@ -192,17 +192,17 @@ struct sharpe_max
 };
 
 //ONLY ON OPENMP
-__device__ __host__
-void printExecutions(bt::execution& exec){
-	testOut<<"symbol,location,price,size,pnl"<<endl;
-	for (int sym=0;sym<DATA_ELEMENTS;sym++){
-		for (int i=0;i<exec.numTrades[sym];i++){
-			testOut<<sym<<","<<exec.trade[sym].location[i]<<","<<
-				exec.trade[sym].price[i]<<","<<exec.trade[sym].posSize[i]<<
-				","<<exec.trade[sym].realPnL[i]<<endl;
-		}
-	}
-}
+//__device__ __host__
+//void printExecutions(bt::execution& exec){
+//	testOut<<"symbol,location,price,size,pnl"<<endl;
+//	for (int sym=0;sym<DATA_ELEMENTS;sym++){
+//		for (int i=0;i<exec.numTrades[sym];i++){
+//			testOut<<sym<<","<<exec.trade[sym].location[i]<<","<<
+//				exec.trade[sym].price[i]<<","<<exec.trade[sym].posSize[i]<<
+//				","<<exec.trade[sym].realPnL[i]<<endl;
+//		}
+//	}
+//}
 
 struct individual_run
 {
@@ -220,7 +220,7 @@ struct individual_run
     	bt::runExecution(data,dataSize,execTemp,par);
     	forceClose(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
-    	if(Y==0)printExecutions(execTemp);
+//    	if(Y==0)printExecutions(execTemp);
     	return execTemp.result;
 	}
 };
