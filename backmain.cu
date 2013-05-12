@@ -33,7 +33,9 @@ int main(){
 	logExtract.start();
 	thrust::host_vector<bt::stockData> datah;
 	bt::extractRawData(dataFile,datah,true);
-    thrust::device_vector<bt::stockData> datad=datah;
+	thrust::device_vector<bt::stockData>datad(datah.size());
+//	thrust::device_vector<bt::stockData> datad=datah;
+	thrust::copy(datah.begin(), datah.end(), datad.begin());
 	logExtract.log("Lines: ",datah.size());
 	logExtract.end();
 
@@ -42,8 +44,10 @@ int main(){
 	logPar.start();
 	thrust::host_vector<bt::parameters> parh;
 	long VEC_SIZE=setParameters(parh);
-    thrust::device_vector<bt::parameters> pard=parh;
-    thrust::device_vector<bt::result> res(VEC_SIZE);
+	thrust::device_vector<bt::parameters> pard(VEC_SIZE);
+	thrust::copy(parh.begin(), parh.end(), pard.begin());
+	//    thrust::device_vector<bt::parameters> pard=parh;
+    thrust::device_vector<bt::result> resd(VEC_SIZE);
 
 
     //run the backtesting on gpu
@@ -51,14 +55,15 @@ int main(){
     logBacktest.start();
     logBacktest.log("Total simulations to run: ",VEC_SIZE);
     runBacktest(datad
-    		,pard,res,VEC_SIZE);
+    		,pard,resd,VEC_SIZE);
     logBacktest.end();
 
     //sort on gpu
     XLog logSort("Sorting");
     logSort.start();
-    optimizeParameters(res);
-    thrust::host_vector<bt::result> resh=res;
+    optimizeParameters(resd);
+    thrust::host_vector<bt::result> resh(resd.size());
+    thrust::copy(resd.begin(), resd.end(), resh.begin());
     logSort.end();
 
     //sample output
