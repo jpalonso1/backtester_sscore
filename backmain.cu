@@ -3,7 +3,6 @@
 
 #include "setup.h"
 #include "gpu.h"
-#include "xlog.h"
 
 using namespace std;
 
@@ -48,6 +47,7 @@ int main(){
 	//create vector of parameters to be tested
 	thrust::host_vector<bt::parameters> parh;
 	long VEC_SIZE=setParameters(parh);
+	cout<<"Number of simulations: "<<VEC_SIZE<<endl;
 	thrust::device_vector<bt::parameters> pard(VEC_SIZE);
 	thrust::copy(parh.begin(), parh.end(), pard.begin());
 	//    thrust::device_vector<bt::parameters> pard=parh;
