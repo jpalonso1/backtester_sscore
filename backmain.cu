@@ -54,10 +54,8 @@ int main(){
 	//    thrust::device_vector<bt::parameters> pard=parh;
     thrust::device_vector<bt::result> resd(VEC_SIZE);
 
-
     //run the backtesting on gpu
-    runBacktest(datad
-    		,pard,resd,VEC_SIZE);
+    runBacktest(datad,pard,resd,VEC_SIZE);
 
     //sort on gpu
     optimizeParameters(resd);

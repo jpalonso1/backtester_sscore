@@ -5,7 +5,6 @@
 
 #include "setup.h"
 #include "custom.h"
-#include <fstream>
 
 __device__ __host__
 inline void cpyCharCustom(char* source,char* target){
@@ -219,6 +218,7 @@ struct individual_run
     __device__ __host__
     bt::result operator()(const bt::parameters& par, const long& Y) const {
     	//to be run every iteration of the backtest
+
     	bt::execution execTemp;
     	initExec(execTemp);
     	bt::runExecution(data,dataSize,execTemp,par);

@@ -20,11 +20,11 @@ long mixedParameters(thrust::host_vector<bt::parameters>& par){
 	long count=0;
 	parameters tempPar;
 	tempPar.lPar[bt::orderSize]=100000;
-	for (int a=0;a<3;a++){
+	for (int a=0;a<1;a++){
 	tempPar.fPar[bt::SBE]=-0.5-a*0.2;
 	for (int b=0;b<1;b++){
 	tempPar.fPar[bt::SBC]=-0.2-b*0.1;
-	for (int c=0;c<3;c++){
+	for (int c=0;c<1;c++){
 	tempPar.fPar[bt::SSE]=0.5+c*0.2;
 	for (int d=0;d<1;d++){
 	tempPar.fPar[bt::SSC]=0.2+d*0.1;

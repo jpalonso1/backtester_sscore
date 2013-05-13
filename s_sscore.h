@@ -1,7 +1,6 @@
 //Juan Pablo Alonso
 
 #include "setup.h"
-#include <math.h>
 
 #ifndef S_SSCORE_H_
 #define S_SSCORE_H_
@@ -15,12 +14,16 @@ struct ols_pair{
     float alpha;
 };
 
-
 struct trade_param{
-    double hedge_ratio;
-    double s_score;
+    float hedge_ratio;
+    float s_score;
 };
 
+
+__device__ __host__
+inline float xsqrt(float x){
+	return sqrtf(x);
+}
 
 __device__ __host__
 float getReturn(bt::stockData* data,int sym,long position){
@@ -166,6 +169,7 @@ void runSScore(bt::stockData* data,bt::execution& exec,
 			}
 		}
 	}
+	printf("inside S %c",123);
 }
 
 

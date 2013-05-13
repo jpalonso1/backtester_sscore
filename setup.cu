@@ -7,9 +7,9 @@ void extractRawData(char* filename,thrust::host_vector<bt::stockData>& data,bool
 	std::ifstream input(filename);
 	std::string line;
 	char date[20];
-	char d[DATA_ELEMENTS][20];
+	char d[DATA_ELEMENTS+1][20];
 	//looks for comma placements and line length
-	int c[DATA_ELEMENTS],len;
+	int c[DATA_ELEMENTS+1],len;
 	//ignore first line if header exists
 	if (header)getline(input,line);
 	//tracks line number
