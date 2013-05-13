@@ -16,6 +16,7 @@
 using std::cout;
 using std::endl;
 
+const int SYM_COUNT=35;
 const int DATA_ELEMENTS=35*2;
 const int LONG_PARAMETERS=5;
 const int FLOAT_PARAMETERS=5;
@@ -36,8 +37,8 @@ enum {SBE=0,SBC=1,SSE=2,SSC=3};
 struct parameters{
 	//DES:holds floating (fPar) and long (lPar)
 	//parameters for EACH iteration
-	float fPar[FLOAT_PARAMETERS];
-	long lPar[LONG_PARAMETERS];
+	float fPar[FLOAT_PARAMETERS][SYM_COUNT];
+	long lPar[LONG_PARAMETERS][SYM_COUNT];
 };
 
 struct stockData{

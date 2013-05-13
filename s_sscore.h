@@ -122,7 +122,7 @@ __device__ __host__
 void runSScore(bt::stockData* data,bt::execution& exec,
 		long dataSize,long orderSize,long win_size,
 		int sym, int etf,float SBE,float SBC,float SSE,float SSC){
-	printf("inside S %c",123);
+//	printf("inside S %c",123);
 	trade_param tempS;
 	//x is etf, y is sym
 	float x_var[MAX_WINDOW],y_var[MAX_WINDOW];
@@ -141,7 +141,7 @@ void runSScore(bt::stockData* data,bt::execution& exec,
 
 		tempS=comp_s_score(x_var,y_var,win_size);
 		float sScore=tempS.s_score;
-
+		cout<<"s score "<<sScore<<endl;
 		if (currentPosition==0){
 			//buy sym sell etf
 			if (sScore<SBE){

@@ -195,37 +195,37 @@ struct sharpe_max
 };
 
 //ONLY ON OPENMP
-//__device__ __host__
-//void printExecutions(bt::execution& exec){
-//	testOut<<"symbol,location,price,size,pnl"<<endl;
-//	for (int sym=0;sym<DATA_ELEMENTS;sym++){
-//		for (int i=0;i<exec.numTrades[sym];i++){
-//			testOut<<sym<<","<<exec.trade[sym].location[i]<<","<<
-//				exec.trade[sym].price[i]<<","<<exec.trade[sym].posSize[i]<<
-//				","<<exec.trade[sym].realPnL[i]<<endl;
-//		}
-//	}
-//}
+__device__ __host__
+void printExecutions(bt::execution& exec){
+	testOut<<"symbol,location,price,size,pnl"<<endl;
+	for (int sym=0;sym<DATA_ELEMENTS;sym++){
+		for (int i=0;i<exec.numTrades[sym];i++){
+			testOut<<sym<<","<<exec.trade[sym].location[i]<<","<<
+				exec.trade[sym].price[i]<<","<<exec.trade[sym].posSize[i]<<
+				","<<exec.trade[sym].realPnL[i]<<endl;
+		}
+	}
+}
 
 struct individual_run
 {
 	//hold a copy of the pointer to data
 	bt::stockData* data;
 	long dataSize;
-    individual_run(bt::stockData* _data,long _dataSize) :
-    	data(_data),dataSize(_dataSize) {}
+	int etf;
+    individual_run(bt::stockData* _data,long _dataSize,int _etf) :
+    	data(_data),dataSize(_dataSize),etf(_etf) {}
 
     __device__ __host__
     bt::result operator()(const bt::parameters& par, const long& Y) const {
     	//to be run every iteration of the backtest
-    	printf("in first step");
     	bt::execution execTemp;
     	initExec(execTemp);
-    	bt::runExecution(data,dataSize,execTemp,par);
+    	bt::runExecution(data,dataSize,execTemp,par,etf);
     	forceClose(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
     	execTemp.result.pars=par;
-//    	if(Y==0)printExecutions(execTemp);
+    	if(Y==0)printExecutions(execTemp);
     	return execTemp.result;
 
     }
