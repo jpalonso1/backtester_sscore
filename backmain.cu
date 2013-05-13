@@ -21,7 +21,7 @@ void runBacktest(thrust::device_vector<bt::stockData>& data,
 }
 
 void optimizeParameters(thrust::device_vector<bt::result>& res){
-	thrust::sort(res.begin(),res.end(),return_max());
+	thrust::sort(res.begin(),res.end(),retdraw_max());
 }
 
 void printOptimal(bt::result resh,int etf){
@@ -60,9 +60,9 @@ void copyResult(bt::result& optRes,bt::result& lastRes,int etf){
 int main(){
 	//get data
 	thrust::host_vector<bt::stockData> datah;
-	bt::extractRawData(dataFile,datah,true);
+	bt::extractRawData(iSample,datah,true);
 	thrust::device_vector<bt::stockData>datad(datah.size());
-//	thrust::device_vector<bt::stockData> datad=datah;
+//	thrust::device_vector<bt::	stockData> datad=datah;
 	thrust::copy(datah.begin(), datah.end(), datad.begin());
 
 	long VEC_SIZE;

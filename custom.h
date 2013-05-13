@@ -7,6 +7,8 @@
 #include "s_sscore.h"
 
 static char* dataFile={"backtest_value_signal_etf.csv"};
+static char* oSample={"outsample.csv"};
+static char* iSample={"insample.csv"};
 static std::ofstream pnlOut("pnlOut.csv");
 static std::ofstream tradesOut("tradesOut.csv");
 static std::ofstream parametersOut("parametersOut.csv");
@@ -14,6 +16,10 @@ static std::ofstream parametersOut("parametersOut.csv");
 namespace bt{
 
 void recMixerParameters(thrust::host_vector<bt::parameters>& par,parameters tempPar){
+
+}
+
+bt::parameters getParameters(){
 
 }
 
