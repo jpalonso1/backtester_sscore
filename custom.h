@@ -15,6 +15,17 @@ void recMixerParameters(thrust::host_vector<bt::parameters>& par,parameters temp
 
 }
 
+//void customOptParameters(thrust::host_vector<bt::parameters>& par,parameters tempPar){
+//	for (int etf=0;etf<35;etf++){
+//		tempPar.lPar[bt::orderSize][etf]=100000;
+//		tempPar.fPar[bt::SBE][etf]=-0.5;
+//		tempPar.fPar[bt::SBC][etf]=-0.2;
+//		tempPar.fPar[bt::SSE][etf]=0.5;
+//		tempPar.fPar[bt::SSC][etf]=0.2;
+//		tempPar.lPar[bt::windowSize][etf]=10;
+//	}
+//}
+
 long mixedParameters(thrust::host_vector<bt::parameters>& par,int etf){
 	long count=0;
 	parameters tempPar;
@@ -44,13 +55,22 @@ __device__ __host__
 inline void runExecution(bt::stockData* data,long dataSize,
 		bt::execution& exec,const bt::parameters& par,int etf){
 
-//	for (int etf=0;etf<symCount;etf++){
-//		int sym=etf+etfAdd;
+	if (etf==-1){
+		for (int etf=0;etf<35;etf++){
+			int sym=etf+35;
+			bt::runSScore(data,exec,dataSize,par.lPar[bt::orderSize][etf],
+				par.lPar[bt::windowSize][etf],etf+35,etf,
+				par.fPar[bt::SBE][etf],par.fPar[bt::SBC][etf],
+				par.fPar[bt::SSE][etf],par.fPar[bt::SSC][etf]);
+		}
+	}
+	else
+	{
 		bt::runSScore(data,exec,dataSize,par.lPar[bt::orderSize][etf],
 			par.lPar[bt::windowSize][etf],etf+35,etf,
 			par.fPar[bt::SBE][etf],par.fPar[bt::SBC][etf],
 			par.fPar[bt::SSE][etf],par.fPar[bt::SSC][etf]);
-//	}
+	}
 
 
 	//	cout<<data[1618].d[0]<<endl;

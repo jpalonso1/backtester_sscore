@@ -221,13 +221,12 @@ struct individual_run
     	//to be run every iteration of the backtest
     	bt::execution execTemp;
     	initExec(execTemp);
-    	bt::runExecution(data,dataSize,execTemp,par,etf);
+		bt::runExecution(data,dataSize,execTemp,par,etf);
     	forceClose(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
     	execTemp.result.pars=par;
-    	if(Y==0)printExecutions(execTemp);
+    	if(Y==0 && etf==0)printExecutions(execTemp);
     	return execTemp.result;
-
     }
 };
 
