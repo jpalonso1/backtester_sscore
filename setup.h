@@ -7,7 +7,6 @@
 #include <string>
 #include <fstream>
 #include <cstdlib>
-#include <cmath>
 
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>

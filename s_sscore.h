@@ -1,6 +1,7 @@
 //Juan Pablo Alonso
 
 #include "setup.h"
+#include <math.h>
 
 #ifndef S_SSCORE_H_
 #define S_SSCORE_H_
