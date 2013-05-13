@@ -93,6 +93,11 @@ int main(){
 		printOptimal(resh[0],etf);
     }
 
+	thrust::host_vector<bt::stockData> dataho;
+	bt::extractRawData(oSample,dataho,true);
+	thrust::device_vector<bt::stockData>datado(dataho.size());
+//	thrust::device_vector<bt::	stockData> datad=datah;
+	thrust::copy(dataho.begin(), dataho.end(), datado.begin());
 
     for (etf=0;etf<1;etf++){
 		//create vector of parameters to be tested
@@ -108,7 +113,7 @@ int main(){
 		thrust::host_vector<bt::result> resh(1);
 
 		//run the backtesting on gpu
-		runBacktest(datad,pard,resd,1,-1);
+		runBacktest(datado,pard,resd,1,-1);
 
 		//sort on gpu
 		optimizeParameters(resd);
