@@ -137,13 +137,12 @@ void runSScore(bt::stockData* data,bt::execution& exec,
 		for (long j=0;j<win_size;j++){
 			x_var[j]=(data[winStart+j].d[etf]/data[winStart+j-1].d[etf])-1.0;
 			y_var[j]=(data[winStart+j].d[sym]/data[winStart+j-1].d[sym])-1.0;
+			exec.result.temp=x_var[j]=(data[winStart+j].d[etf]/data[winStart+j-1].d[etf]);
+//			if(x_var[j]>0)exec.result.temp=x_var[j];
 		}
 
 		tempS=comp_s_score(x_var,y_var,win_size);
 		float sScore=tempS.s_score;
-		if (i==win_size+10){
-			exec.result.temp=sScore;
-		}
 //		cout<<i<< " s score "<<sScore<<endl;
 		if (currentPosition==0){
 			//buy sym sell etf

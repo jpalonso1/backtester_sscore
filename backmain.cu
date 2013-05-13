@@ -25,8 +25,8 @@ void optimizeParameters(thrust::device_vector<bt::result>& res){
 }
 
 void printOptimal( thrust::host_vector<bt::result> resh,int etf){
-    for (int i=0;i<3;i++){
-		cout<<i<<" - Sum PnL: "<<resh[i].PnL[DATA_ELEMENTS];
+    for (int i=0;i<1;i++){
+		cout<<etf<<" - Sum PnL: "<<resh[i].PnL[DATA_ELEMENTS];
 		cout<<" sharpe: "<<resh[i].sharpe[DATA_ELEMENTS];
 		cout<<" Max Draw: "<<resh[i].maxDrawdown[DATA_ELEMENTS]<<endl;
 		cout<<" SBE: "<<resh[i].pars.fPar[bt::SBE][etf];
@@ -37,6 +37,14 @@ void printOptimal( thrust::host_vector<bt::result> resh,int etf){
     }
 }
 
+void copyResult(bt::result& optRes,bt::result& lastRes,int etf){
+	optRes.pars.fPar[bt::SBE][etf]=lastRes.pars.fPar[bt::SBE][etf];
+	optRes.pars.fPar[bt::SBC][etf]=lastRes.pars.fPar[bt::SBC][etf];
+	optRes.pars.fPar[bt::SSE][etf]=lastRes.pars.fPar[bt::SSE][etf];
+	optRes.pars.fPar[bt::SSC][etf]=lastRes.pars.fPar[bt::SSC][etf];
+	optRes.pars.fPar[bt::windowSize][etf]=lastRes.pars.fPar[bt::windowSize][etf];
+}
+
 int main(){
 	//get data
 	thrust::host_vector<bt::stockData> datah;
@@ -45,31 +53,41 @@ int main(){
 //	thrust::device_vector<bt::stockData> datad=datah;
 	thrust::copy(datah.begin(), datah.end(), datad.begin());
 
-	//create vector of parameters to be tested
-	thrust::host_vector<bt::parameters> parh;
-	long VEC_SIZE=setParameters(parh,0);
-	cout<<"Number of simulations: "<<VEC_SIZE<<endl;
-	thrust::device_vector<bt::parameters> pard(VEC_SIZE);
-	thrust::copy(parh.begin(), parh.end(), pard.begin());
-	//    thrust::device_vector<bt::parameters> pard=parh;
-    thrust::device_vector<bt::result> resd(VEC_SIZE);
+    bt::result optRes;
+    int etf;
+    for (etf=0;etf<35;etf++){
+		//create vector of parameters to be tested
+		thrust::host_vector<bt::parameters> parh;
+		long VEC_SIZE=setParameters(parh,etf);
+		cout<<"Number of simulations: "<<VEC_SIZE<<endl;
+		thrust::device_vector<bt::parameters> pard(VEC_SIZE);
+		thrust::copy(parh.begin(), parh.end(), pard.begin());
+		//    thrust::device_vector<bt::parameters> pard=parh;
+		thrust::device_vector<bt::result> resd(VEC_SIZE);
+		thrust::host_vector<bt::result> resh(VEC_SIZE);
 
-    int etf=0;
-    //run the backtesting on gpu
-    runBacktest(datad,pard,resd,VEC_SIZE,etf);
+		setParameters(parh,etf);
+		//run the backtesting on gpu
+		runBacktest(datad,pard,resd,VEC_SIZE,etf);
 
-    //sort on gpu
-    optimizeParameters(resd);
-    thrust::host_vector<bt::result> resh(resd.size());
-    thrust::copy(resd.begin(), resd.end(), resh.begin());
+		//sort on gpu
+		optimizeParameters(resd);
+		thrust::copy(resd.begin(), resd.end(), resh.begin());
 
-    //sample output
-    printOptimal(resh,etf);
+		//update optimalRes
+		copyResult(optRes,resh[0],etf);
+
+		//sample output
+		printOptimal(resh,etf);
+    }
+
+
+
 
     clock_t timeEnd=clock();
 
-    cout<<"returned s Scores: "<<resh[0].temp<<endl;
-    cout<<"returned s Scores: "<<resh[1].temp<<endl;
+    cout<<"returned s Scores: "<<optRes.temp<<endl;
+    cout<<"returned s Scores: "<<optRes.temp<<endl;
     cout<<"Total Runtime (see README.txt): "<<double(timeEnd)/double(CLOCKS_PER_SEC)<<" seconds"<<endl;
 
     return 0;
