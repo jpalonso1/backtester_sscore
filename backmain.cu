@@ -21,7 +21,7 @@ void runBacktest(thrust::device_vector<bt::stockData>& data,
 }
 
 void optimizeParameters(thrust::device_vector<bt::result>& res){
-	thrust::sort(res.begin(),res.end(),sharpe_max());
+	thrust::sort(res.begin(),res.end(),return_max());
 }
 
 void printOptimal(bt::result resh,int etf){
