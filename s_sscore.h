@@ -122,6 +122,7 @@ __device__ __host__
 void runSScore(bt::stockData* data,bt::execution& exec,
 		long dataSize,long orderSize,long win_size,
 		int sym, int etf,float SBE,float SBC,float SSE,float SSC){
+	printf("inside S %c",123);
 	trade_param tempS;
 	//x is etf, y is sym
 	float x_var[MAX_WINDOW],y_var[MAX_WINDOW];
@@ -169,7 +170,6 @@ void runSScore(bt::stockData* data,bt::execution& exec,
 			}
 		}
 	}
-	printf("inside S %c",123);
 }
 
 

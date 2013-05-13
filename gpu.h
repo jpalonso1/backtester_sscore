@@ -218,7 +218,7 @@ struct individual_run
     __device__ __host__
     bt::result operator()(const bt::parameters& par, const long& Y) const {
     	//to be run every iteration of the backtest
-
+    	printf("in first step");
     	bt::execution execTemp;
     	initExec(execTemp);
     	bt::runExecution(data,dataSize,execTemp,par);

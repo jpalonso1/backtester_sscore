@@ -44,6 +44,8 @@ long setParameters(thrust::host_vector<bt::parameters>& par){
 __device__ __host__
 inline void runExecution(bt::stockData* data,long dataSize,
 		bt::execution& exec,const bt::parameters& par){
+
+	printf("SECOND STEP");
 	//modify this line to call custom function:
 //	for (int sym=0;sym<DATA_ELEMENTS;sym++){
 //		crossingMA(data,exec,dataSize,sym,par.lPar[bt::orderSize],
@@ -60,6 +62,7 @@ inline void runExecution(bt::stockData* data,long dataSize,
 			par.fPar[bt::SBE],par.fPar[bt::SBC],
 			par.fPar[bt::SSE],par.fPar[bt::SSC]);
 	}
+
 
 	//	cout<<data[1618].d[0]<<endl;
 //	cout<<data[1618].d[1]<<endl;
