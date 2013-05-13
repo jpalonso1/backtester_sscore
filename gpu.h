@@ -225,7 +225,7 @@ struct individual_run
     	forceClose(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize);
     	execTemp.result.pars=par;
-    	if(Y==0 && etf==0)printExecutions(execTemp);
+    	if(Y==0 && etf==-1)printExecutions(execTemp);
     	return execTemp.result;
     }
 };

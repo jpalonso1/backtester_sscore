@@ -57,7 +57,6 @@ inline void runExecution(bt::stockData* data,long dataSize,
 
 	if (etf==-1){
 		for (int etf=0;etf<35;etf++){
-			int sym=etf+35;
 			bt::runSScore(data,exec,dataSize,par.lPar[bt::orderSize][etf],
 				par.lPar[bt::windowSize][etf],etf+35,etf,
 				par.fPar[bt::SBE][etf],par.fPar[bt::SBC][etf],

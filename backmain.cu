@@ -106,7 +106,7 @@ int main(){
 		thrust::host_vector<bt::result> resh(VEC_SIZE);
 
 		//run the backtesting on gpu
-		runBacktest(datad,pard,resd,VEC_SIZE,etf);
+		runBacktest(datad,pard,resd,VEC_SIZE,-1);
 
 		//sort on gpu
 		optimizeParameters(resd);
