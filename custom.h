@@ -7,7 +7,9 @@
 #include "s_sscore.h"
 
 static char* dataFile={"backtest_value_signal_etf.csv"};
-static std::ofstream testOut("testOut.csv");
+static std::ofstream pnlOut("pnlOut.csv");
+static std::ofstream tradesOut("tradesOut.csv");
+static std::ofstream parametersOut("parametersOut.csv");
 
 namespace bt{
 
@@ -27,19 +29,20 @@ void recMixerParameters(thrust::host_vector<bt::parameters>& par,parameters temp
 //}
 
 long mixedParameters(thrust::host_vector<bt::parameters>& par,int etf){
+	int tempMax=2;
 	long count=0;
 	parameters tempPar;
 	tempPar.lPar[bt::orderSize][etf]=100000;
-	for (int a=0;a<1;a++){
-	tempPar.fPar[bt::SBE][etf]=-0.5-a*0.2;
-	for (int b=0;b<1;b++){
-	tempPar.fPar[bt::SBC][etf]=-0.2-b*0.1;
-	for (int c=0;c<1;c++){
-	tempPar.fPar[bt::SSE][etf]=0.5+c*0.2;
-	for (int d=0;d<1;d++){
-	tempPar.fPar[bt::SSC][etf]=0.2+d*0.1;
-	for (int e=0;e<10;e++){
-	tempPar.lPar[bt::windowSize][etf]=10+e*5;
+	for (int a=0;a<tempMax;a++){
+	tempPar.fPar[bt::SBE][etf]=-0.6-a*0.5;
+	for (int b=0;b<tempMax;b++){
+	tempPar.fPar[bt::SBC][etf]=-0.2-b*0.2;
+	for (int c=0;c<tempMax;c++){
+	tempPar.fPar[bt::SSE][etf]=0.6+c*0.5;
+	for (int d=0;d<tempMax;d++){
+	tempPar.fPar[bt::SSC][etf]=0.2+d*0.2;
+	for (int e=0;e<5;e++){
+	tempPar.lPar[bt::windowSize][etf]=10+e*10;
 	par.push_back(tempPar);
 	count++;
 	}}}}}

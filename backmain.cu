@@ -21,7 +21,7 @@ void runBacktest(thrust::device_vector<bt::stockData>& data,
 }
 
 void optimizeParameters(thrust::device_vector<bt::result>& res){
-	thrust::sort(res.begin(),res.end(),return_max());
+	thrust::sort(res.begin(),res.end(),sharpe_max());
 }
 
 void printOptimal(bt::result resh,int etf){
@@ -35,13 +35,17 @@ void printOptimal(bt::result resh,int etf){
 	cout<<" WindowSize: "<<resh.pars.lPar[bt::windowSize][etf]<<endl;
 }
 
-void printParameter(bt::parameters pars,int etf){
-	cout<<" order size: "<<pars.lPar[bt::orderSize][etf];
-	cout<<" SBE: "<<pars.fPar[bt::SBE][etf];
-	cout<<" SBC: "<<pars.fPar[bt::SBC][etf];
-	cout<<" SSE: "<<pars.fPar[bt::SSE][etf];
-	cout<<" SSC: "<<pars.fPar[bt::SSC][etf];
-	cout<<" WindowSize: "<<pars.lPar[bt::windowSize][etf]<<endl;
+void printParameter(bt::parameters pars){
+	parametersOut<<"sym,orderSize,SBE,SBC,SSE,SSC,windowSize"<<endl;
+	for (int etf=0;etf<35;etf++){
+		parametersOut<<etf<<","<<pars.lPar[bt::orderSize][etf]
+		<<","<<pars.fPar[bt::SBE][etf]
+		<<","<<pars.fPar[bt::SBC][etf]
+		<<","<<pars.fPar[bt::SSE][etf]
+		<<","<<pars.fPar[bt::SSC][etf]
+		<<","<<pars.lPar[bt::windowSize][etf]<<endl;
+
+	}
 }
 
 void copyResult(bt::result& optRes,bt::result& lastRes,int etf){
@@ -93,20 +97,18 @@ int main(){
     for (etf=0;etf<1;etf++){
 		//create vector of parameters to be tested
 		thrust::host_vector<bt::parameters> parh;
-		VEC_SIZE=setParameters(parh,etf);
 		cout<<"Number of simulations: "<<VEC_SIZE<<endl;
-		thrust::device_vector<bt::parameters> pard(VEC_SIZE);
-		cout<<parh[0].fPar[bt::SBE][etf]<<endl;
-		printParameter(parh[0],etf);
-		parh[0]=optRes.pars;
-		cout<<parh[0].fPar[bt::SBE][etf]<<endl;
+		thrust::device_vector<bt::parameters> pard(1);
+
+		parh.push_back(optRes.pars);
+
 		thrust::copy(parh.begin(), parh.end(), pard.begin());
 		//    thrust::device_vector<bt::parameters> pard=parh;
-		thrust::device_vector<bt::result> resd(VEC_SIZE);
-		thrust::host_vector<bt::result> resh(VEC_SIZE);
+		thrust::device_vector<bt::result> resd(1);
+		thrust::host_vector<bt::result> resh(1);
 
 		//run the backtesting on gpu
-		runBacktest(datad,pard,resd,VEC_SIZE,-1);
+		runBacktest(datad,pard,resd,1,-1);
 
 		//sort on gpu
 		optimizeParameters(resd);
@@ -119,6 +121,7 @@ int main(){
 		printOptimal(resh[0],etf);
     }
 
+    printParameter(optRes.pars);
 
     clock_t timeEnd=clock();
 
