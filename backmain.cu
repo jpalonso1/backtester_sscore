@@ -3,6 +3,7 @@
 
 #include "setup.h"
 #include "gpu.h"
+#include <ctime>
 
 using namespace std;
 
@@ -65,6 +66,9 @@ int main(){
 
     //sample output
     printOptimal(resh);
+
+    clock_t timeEnd=clock();
+    cout<<"Total Runtime (see README.txt): "<<double(timeEnd)/double(CLOCKS_PER_SEC)<<" seconds"<<endl;
 
     return 0;
 }
