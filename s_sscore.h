@@ -141,7 +141,10 @@ void runSScore(bt::stockData* data,bt::execution& exec,
 
 		tempS=comp_s_score(x_var,y_var,win_size);
 		float sScore=tempS.s_score;
-		cout<<"s score "<<sScore<<endl;
+		if (i==win_size+10){
+			exec.result.temp=sScore;
+		}
+//		cout<<i<< " s score "<<sScore<<endl;
 		if (currentPosition==0){
 			//buy sym sell etf
 			if (sScore<SBE){

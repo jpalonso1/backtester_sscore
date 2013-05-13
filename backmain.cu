@@ -25,7 +25,7 @@ void optimizeParameters(thrust::device_vector<bt::result>& res){
 }
 
 void printOptimal( thrust::host_vector<bt::result> resh,int etf){
-    for (int i=0;i<10;i++){
+    for (int i=0;i<3;i++){
 		cout<<i<<" - Sum PnL: "<<resh[i].PnL[DATA_ELEMENTS];
 		cout<<" sharpe: "<<resh[i].sharpe[DATA_ELEMENTS];
 		cout<<" Max Draw: "<<resh[i].maxDrawdown[DATA_ELEMENTS]<<endl;
@@ -67,6 +67,9 @@ int main(){
     printOptimal(resh,etf);
 
     clock_t timeEnd=clock();
+
+    cout<<"returned s Scores: "<<resh[0].temp<<endl;
+    cout<<"returned s Scores: "<<resh[1].temp<<endl;
     cout<<"Total Runtime (see README.txt): "<<double(timeEnd)/double(CLOCKS_PER_SEC)<<" seconds"<<endl;
 
     return 0;

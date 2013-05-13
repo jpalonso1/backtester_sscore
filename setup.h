@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <cmath>
 
 #include <thrust/device_vector.h>
 #include <thrust/host_vector.h>
@@ -67,6 +68,7 @@ struct result{
 	float maxDrawdown[DATA_ELEMENTS+1];
 	float numTransactions[DATA_ELEMENTS+1];
 	float avgDailyProfit[DATA_ELEMENTS+1];
+	float temp;
 	parameters pars;
 };
 
