@@ -5,7 +5,6 @@
 
 #include "setup.h"
 #include "custom.h"
-#include "xlog.h"
 #include <fstream>
 
 __device__ __host__

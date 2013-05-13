@@ -40,7 +40,7 @@ ols_pair ols_regression(float x_var[], float y_var[], int win_size){
     float y_mean = sum_y / win_size;
 
     for(int i = 0; i < win_size; i++){
-        sum_x_square += pow(x_var[i] - x_mean, 2);
+        sum_x_square += powf(x_var[i] - x_mean, 2);
         sum_cross += (x_var[i] - x_mean) * (y_var[i] - y_mean);
     }
 
@@ -89,15 +89,15 @@ trade_param comp_s_score(float x_var[], float y_var[], int win_size){
 
     for(int i = 0; i < win_size-1; i++){
         sum_resid = resid[i] - resid_lag[i]*ols_resid.beta - ols_resid.alpha;
-        sum_squares += pow(sum_resid, 2);
+        sum_squares += powf(sum_resid, 2.0);
     }
 
-    resid_stdev = sqrt((sum_squares/(win_size-1) - pow(sum_resid/(win_size-1), 2)));
+    resid_stdev = sqrtf((sum_squares/(win_size-1.0) - powf(sum_resid/(win_size-1), 2.0)));
 
     // Compute s_score with drift according to the paper [Marco Avellaneda, Jeong-Hyun Lee].
-    float k = - log(ols_resid.beta) * 252;
+    float k = - logf(ols_resid.beta) * 252;
     float m = ols_resid.alpha / (1-ols_resid.beta);
-    float sigma_eq = resid_stdev / sqrt(1-ols_resid.beta*ols_resid.beta);
+    float sigma_eq = resid_stdev / sqrtf(1.0-ols_resid.beta*ols_resid.beta);
     float s_score = - m / sigma_eq;
     float s_score_with_drift = s_score - ols_return.alpha / (k*sigma_eq);
 
