@@ -94,7 +94,7 @@ inline void getStats(bt::execution& exec,bt::stockData* data,long dataSize,
 				returnSum[DATA_ELEMENTS]+=periodPnL/data[i-1].d[sym];
 			}
 
-			if(printCheck==true)pnlOut<<sym<<","<<i<<","<<periodPnL<<endl;
+//			if(printCheck==true)pnlOut<<sym<<","<<i<<","<<periodPnL<<endl;
 
 			//updateDrawdown
 			tempMaxDraw[sym]-=periodPnL;
@@ -210,18 +210,18 @@ struct retdraw_max
 	}
 };
 
-//ONLY ON OPENMP
-__device__ __host__
-void printExecutions(bt::execution& exec){
-	tradesOut<<"symbol,location,price,size,pnl"<<endl;
-	for (int sym=0;sym<DATA_ELEMENTS;sym++){
-		for (int i=0;i<exec.numTrades[sym];i++){
-			tradesOut<<sym<<","<<exec.trade[sym].location[i]<<","<<
-				exec.trade[sym].price[i]<<","<<exec.trade[sym].posSize[i]<<
-				","<<exec.trade[sym].realPnL[i]<<endl;
-		}
-	}
-}
+////ONLY ON OPENMP
+//__device__ __host__
+//void printExecutions(bt::execution& exec){
+//	tradesOut<<"symbol,location,price,size,pnl"<<endl;
+//	for (int sym=0;sym<DATA_ELEMENTS;sym++){
+//		for (int i=0;i<exec.numTrades[sym];i++){
+//			tradesOut<<sym<<","<<exec.trade[sym].location[i]<<","<<
+//				exec.trade[sym].price[i]<<","<<exec.trade[sym].posSize[i]<<
+//				","<<exec.trade[sym].realPnL[i]<<endl;
+//		}
+//	}
+//}
 
 struct individual_run
 {
@@ -236,14 +236,14 @@ struct individual_run
     bt::result operator()(const bt::parameters& par, const long& Y) const {
     	//to be run every iteration of the backtest
     	bool printCheck=false;
-    	if(Y==0 && etf==-1)printCheck=true;
+//    	if(Y==0 && etf==-1)printCheck=true;
     	bt::execution execTemp;
     	initExec(execTemp);
 		bt::runExecution(data,dataSize,execTemp,par,etf);
     	forceClose(execTemp,data,dataSize);
     	getStats(execTemp,data,dataSize,printCheck);
     	execTemp.result.pars=par;
-    	if(printCheck)printExecutions(execTemp);
+//    	if(printCheck)printExecutions(execTemp);
     	return execTemp.result;
     }
 };

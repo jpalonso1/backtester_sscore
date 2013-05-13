@@ -19,21 +19,6 @@ void recMixerParameters(thrust::host_vector<bt::parameters>& par,parameters temp
 
 }
 
-bt::parameters getParameters(){
-
-}
-
-//void customOptParameters(thrust::host_vector<bt::parameters>& par,parameters tempPar){
-//	for (int etf=0;etf<35;etf++){
-//		tempPar.lPar[bt::orderSize][etf]=100000;
-//		tempPar.fPar[bt::SBE][etf]=-0.5;
-//		tempPar.fPar[bt::SBC][etf]=-0.2;
-//		tempPar.fPar[bt::SSE][etf]=0.5;
-//		tempPar.fPar[bt::SSC][etf]=0.2;
-//		tempPar.lPar[bt::windowSize][etf]=10;
-//	}
-//}
-
 long mixedParameters(thrust::host_vector<bt::parameters>& par,int etf){
 	int tempMax=2;
 	long count=0;
