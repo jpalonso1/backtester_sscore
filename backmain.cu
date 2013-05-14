@@ -18,6 +18,7 @@ void runBacktest(thrust::device_vector<bt::stockData>& data,
     //transform the vector using the specified function
     thrust::transform(par.begin(), par.end(), Y.begin(), res.begin(),
 			individual_run(dataPtr,data.size(),etf));
+
 }
 
 void optimizeParameters(thrust::device_vector<bt::result>& res){
@@ -26,7 +27,7 @@ void optimizeParameters(thrust::device_vector<bt::result>& res){
 
 void printOptimal(bt::result resh,int etf){
 	cout<<etf<<" - Sum PnL: "<<resh.PnL[DATA_ELEMENTS];
-	cout<<" sharpe: "<<resh.sharpe[DATA_ELEMENTS];
+//	cout<<" sharpe: "<<resh.sharpe[DATA_ELEMENTS];
 	cout<<" Max Draw: "<<resh.maxDrawdown[DATA_ELEMENTS]<<endl;
 	cout<<" SBE: "<<resh.pars.fPar[bt::SBE][etf];
 	cout<<" SBC: "<<resh.pars.fPar[bt::SBC][etf];
@@ -65,6 +66,7 @@ int main(){
 //	thrust::device_vector<bt::	stockData> datad=datah;
 	thrust::copy(datah.begin(), datah.end(), datad.begin());
 
+	long simCount=0;
 	long VEC_SIZE;
     bt::result optRes;
     int etf;
@@ -72,7 +74,8 @@ int main(){
 		//create vector of parameters to be tested
 		thrust::host_vector<bt::parameters> parh;
 		VEC_SIZE=setParameters(parh,etf);
-		cout<<"Number of simulations: "<<VEC_SIZE<<endl;
+		cout<<"Number of simulations: "<<simCount<<endl;
+		simCount+=VEC_SIZE;
 		thrust::device_vector<bt::parameters> pard(VEC_SIZE);
 		thrust::copy(parh.begin(), parh.end(), pard.begin());
 		//    thrust::device_vector<bt::parameters> pard=parh;
@@ -94,7 +97,7 @@ int main(){
     }
 
 	thrust::host_vector<bt::stockData> dataho;
-	bt::extractRawData(oSample,dataho,true);
+	bt::extractRawData(iSample,dataho,true);
 	thrust::device_vector<bt::stockData>datado(dataho.size());
 //	thrust::device_vector<bt::	stockData> datad=datah;
 	thrust::copy(dataho.begin(), dataho.end(), datado.begin());
@@ -102,7 +105,8 @@ int main(){
     for (etf=0;etf<1;etf++){
 		//create vector of parameters to be tested
 		thrust::host_vector<bt::parameters> parh;
-		cout<<"Number of simulations: "<<VEC_SIZE<<endl;
+		simCount+=VEC_SIZE;
+		cout<<"Number of simulations: "<<simCount<<endl;
 		thrust::device_vector<bt::parameters> pard(1);
 
 		parh.push_back(optRes.pars);
@@ -111,6 +115,7 @@ int main(){
 		//    thrust::device_vector<bt::parameters> pard=parh;
 		thrust::device_vector<bt::result> resd(1);
 		thrust::host_vector<bt::result> resh(1);
+
 
 		//run the backtesting on gpu
 		runBacktest(datado,pard,resd,1,-1);
@@ -127,11 +132,8 @@ int main(){
     }
 
     printParameter(optRes.pars);
-
     clock_t timeEnd=clock();
 
-    cout<<"returned s Scores: "<<optRes.temp<<endl;
-    cout<<"returned s Scores: "<<optRes.temp<<endl;
     cout<<"Total Runtime: "<<double(timeEnd)/double(CLOCKS_PER_SEC)<<" seconds"<<endl;
 
     return 0;
